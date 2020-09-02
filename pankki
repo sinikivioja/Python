@@ -1,0 +1,275 @@
+''' Kaytetty ohjelmakoodipohjaa
+
+Pankkitili
+Ohjelman on tehty kuvitteellisen pankin
+digitalisoitumisen edistämiseksi
+'''
+
+class Account:
+    def __init__(self, account_number, balance):
+        '''
+        Rakentaja-luokka
+        :param account_number: tilinumero-olio
+        :param balance: tilin saldo-olio
+        '''
+
+        self.__account_number = account_number
+        self.__balance = balance
+        self.__luotolliset = {}
+
+    def balance(self):
+        '''
+        Palauttaa tilin saldon
+        :return: tilin saldo
+        '''
+
+        return self.__balance
+
+    def deposit(self, sum):
+        '''
+        Tallentaa rahaa tilille
+        :param sum: Tilille lisättävä summa
+        :return: True/False
+        '''
+
+        if sum < 0:
+            return False
+
+        self.__balance += sum
+        return True
+
+    def withdrawal(self, rahamaara):
+        '''
+        Nostetaan rahaa tililtä. Jos katetta ei ole tarpeeksi,
+        tili nostetaan tyhjäksi.
+        :param rahamaara: Haluttu nostettava summa
+        :return: None
+        '''
+
+        # Kun tili on luotollinen
+        if self.__account_number in self.__luotolliset:
+            luottoraja = self.__luotolliset[self.__account_number]
+            kaytettavissa_summa = luottoraja + self.__balance
+
+            if rahamaara <= 0 or kaytettavissa_summa == 0:
+                print("Withdrawal not successful")
+                return
+
+            elif rahamaara <= kaytettavissa_summa:
+                print("{:.2f} e withdrawal completed".format(rahamaara))
+                self.__balance -= rahamaara
+
+            else:
+                print("{:.2f} e withdrawal completed".format(kaytettavissa_summa))
+                self.__balance -= kaytettavissa_summa
+
+        # Kun tili ei ole luotollinen
+        elif rahamaara <= 0 or self.__balance == 0:
+            print("Withdrawal not successful")
+            return
+
+        elif rahamaara <= self.__balance:
+            print("{:.2f} e withdrawal completed".format(rahamaara))
+            self.__balance -= rahamaara
+
+        elif rahamaara > self.__balance:
+            print("{:.2f} e withdrawal completed".format(self.__balance))
+            self.__balance = 0
+
+    def credit(self, luottoraja):
+        '''
+        Muokkaa tavallisesta tilistä luottotilin
+        :param luottoraja: Luottoraja, johon asti
+        tililtä voidaan käyttää rahaa tilin nollautumisen
+        jälkeen
+        :return: Dict luotollisista tileistä ja niiden
+        luottorajoista
+        '''
+
+        self.__luotolliset[self.__account_number] = luottoraja
+        print("Credit facility granted")
+        return self.__luotolliset
+
+
+    def delete_credit(self):
+        '''
+        Poistaa luotto-ominaisuuden tilistä jos tilin
+        saldo on positiivinen. Jos saldo negatiivinen,
+        tulostaa virheilmoituksen
+        :return:
+        '''
+
+        if self.__account_number in self.__luotolliset:
+            # Jos tili miinuksella, tulostetaan virheilmoitus
+            if self.__balance < 0:
+                print("Credit facility can't be removed because the balance is {:.2f} e".format(self.__balance))
+                return
+
+            else:
+                del self.__luotolliset[self.__account_number]
+                print("This account has now no credit card facility.")
+
+        else:
+            print("This account has now no credit card facility.")
+            return
+
+
+def read_input_file(filename):
+    '''
+    Lukee tiedoston ja muokkaa sen oikeaan muotoon
+    :param filename: käytettävä tiedosto
+    :return: accounts dict
+    '''
+
+    accounts = {}
+    try:
+        file_object = open(filename, "r")
+        for line in file_object:
+            line = line.strip()
+            strings = line.split(";")
+            account_number = int(strings[0])
+            sum = float(strings[1])
+            new_account = Account(account_number, sum)
+            accounts[account_number] = new_account
+    except OSError:
+        print("Error! Error in reading the input file.")
+        return None
+    return accounts
+
+
+def read_account_number(prompt, database):
+    '''
+    Lukee tilin numeron
+    :param prompt: input
+    :param database: numero
+    :return: palautetaan haluttu tilinumero
+    '''
+
+    while True:
+        try:
+            account_nr = int(input(prompt))
+            while account_nr not in database:
+                print("Erroneous account, the accounts are:")
+                listing(database)
+                account_nr = int(input(prompt))
+            return account_nr
+        except ValueError:
+            print("Erroneous account, the accounts are:")
+            listing(database)
+
+
+def read_float(prompt):
+    '''
+    Lukee ja palauttaa floatin
+    :param prompt: luku
+    :return: luku (float)
+    '''
+
+    while True:
+        try:
+            sum = float(input(prompt))
+            return sum
+        except ValueError:
+            print("Enter a decimal value")
+
+
+def listing(database):
+    '''
+    Tulostaa listan tileistä ja niiden saldoista
+    :param database: tilit
+    :return:
+    '''
+
+    for account in sorted(database):
+        print(account, ": {:.2f} e".format(database[account].balance()))
+
+
+def main():
+    accounts = read_input_file("accounts.txt")
+    if accounts == None:
+        return
+
+    print("Welcome to the Bank of Perähikiä!")
+
+    while True:
+        command = input("Command: ")
+        command = command.upper()
+
+        if command == "B":
+            account_nr = read_account_number("Account number: ", accounts)
+            print("Balance of account", account_nr, "is {:.2f} e"
+                  .format(accounts[account_nr].balance()))
+
+        elif command == "L":
+            # Tulostetaan lista tileistä
+            listing(accounts)
+
+        elif command == "D":
+            # Lisätään tilille rahaa
+            account_nr = read_account_number("Account number: ", accounts)
+            sum = read_float("Sum: ")
+
+            if accounts[account_nr].deposit(sum):
+                print("Deposit completed, new balance is {:.2f} e"
+                      .format(accounts[account_nr].balance()))
+            else:
+                print("Deposit not successful")
+
+        elif command == "W":
+            # Nostetaan rahaa tililtä
+            tilinumero = read_account_number("Account number: ", accounts)
+            rahamaara = read_float("Sum: ")
+
+            # Kun käyttäjän syöte positiivinen luku
+            if rahamaara > 0:
+                accounts[tilinumero].withdrawal(rahamaara)
+
+            else:
+                # Jos käyttäjä syöttää negatiivisen luvun, siirtoa ei tehdä
+                print("Withdraval not successful")
+
+        elif command == "-":
+            # Poistetaan tili
+            poistettava = read_account_number("Account number to be terminated: ", accounts)
+
+            if poistettava in accounts:
+                saldo = accounts[poistettava].balance()
+
+                if saldo >= 0:
+                    print("Withdrawal {:.2f} e from the terminated account".format(saldo))
+                    del accounts[poistettava]
+
+                else:
+                    print("The account can not be terminated because the balance is {:.2f} e".format(saldo))
+
+        elif command == "GC":
+            # Tehdään normaalista tilistä luotollinen tili
+            tili = read_account_number("Account number: ", accounts)
+            luottoraja = read_float("Credit limit: ")
+            accounts[tili].credit(luottoraja)
+
+        elif command == "RC":
+            # Poistetaan luotto-ominaisuus
+            luotollinen_tili = read_account_number("Account number: ", accounts)
+            accounts[luotollinen_tili].delete_credit()
+
+        elif command == "" or command == "Q":
+            print("Thankyou and goodbye!")
+            return
+
+        else:
+            print("Erroneous command!")
+            print("The commands are:")
+            print("Balance")
+            print("List of accounts")
+            print("Interest")
+            print("Deposit")
+            print("Withdrawal")
+            print("account Transfer")
+            print("+ (new account)")
+            print("- (terminate account)")
+            print("Grant Credit facility")
+            print("Remove Credit facility")
+
+
+main()
