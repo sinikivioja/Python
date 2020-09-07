@@ -1,0 +1,40 @@
+import tut.arduino_led_matrix as led_matrix
+import time
+
+
+def main():
+    led_matrix.init()
+
+    vaaka = 0
+    pysty = 1
+
+    while vaaka <= 7:
+        led_matrix.set_led_color(vaaka, 0, 0, 255, 0)
+        time.sleep(0.1)
+        led_matrix.clear()
+        vaaka += 1
+
+    while pysty <= 7:
+        led_matrix.set_led_color(7, pysty, 0, 255, 0)
+        time.sleep(0.1)
+        led_matrix.clear()
+        pysty += 1
+
+        vaaka = 6
+
+    while vaaka >= 0:
+        led_matrix.set_led_color(vaaka, 7, 0, 255, 0)
+        time.sleep(0.1)
+        led_matrix.clear()
+        vaaka -= 1
+
+        pysty = 6
+
+    while pysty >= 0:
+        led_matrix.set_led_color(0, pysty, 0, 255, 0)
+        time.sleep(0.1)
+        led_matrix.clear()
+        pysty -= 1
+
+
+main()
