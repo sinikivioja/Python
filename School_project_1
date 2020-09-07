@@ -1,0 +1,225 @@
+# Shopping basket program
+
+DEFAULT_FILENAME = "products.txt"
+
+
+# S
+def print_selections(stores):
+    for store in sorted(stores):
+        print(store)
+        index = stores.index(store)
+        print_price_info(product, price)
+    pass
+
+
+# P
+def print_known_products(data):
+    print("Available products:")
+    # printtausfunktio
+    pass
+
+
+# C
+def find_cheapest_stores(prices):
+    shopping_list = read_shopping_basket()
+    # seuraavieen listamuuttujien indeksit ovat samoja
+    # listan 'kaupat' kanssa, jolloin ohjelma toimii
+
+    price_list = []
+    # summataan kaupoittain niissä myytävien
+    # käyttäjän syöttämien tuotteiden hinnat
+
+    store_products = []
+    # kirjataan kunkin kaupan kohdalta
+    # joko 1 tai 0 sen mukaan, myydäänkö siellä
+    # käyttäjän syöttämiä tuotteita
+
+    cheapest_stores = []
+    # kaupat, jotka myyvät käyttäjän syöttämiä
+    # tuotteita halvimmalla
+
+    comparative_prices = []
+    # vertailtavat hinnat
+    # jätetään pois ne hinnat niistä kaupoista, jotka
+    # eivät myy kaikkia käyttäjän syöttämiä tuotteita
+
+    for i in range(0, len(prices)):
+        price_list.append(0.0)
+        # lisätään hintalistaan alkio jokaisen kaupan kohdalle
+
+        store_products.append(1)
+
+        for product in shopping_list:
+            # jos tuote löytyy sitä vastaavasta kaupasta
+            if product in prices[i]:
+                price_list[i] += prices[i][product]
+                # lisätään hintalistaan hintatieto
+
+            else:
+                store_products[i] = 0
+                # jos ei löydy, muuttujan arvo 0
+                # joka vastaa tietoa, ettei kaikkia tuotteita löydy
+
+    # lisätään listaan 'comparative_prices' ne hinnat,
+    # jotka saadaan kaupoista, jotka myyvät kaikkia haluttavia tuotteita
+    for i in range(0, len(price_list)):
+        if store_products[i] == 1:
+            comparative_prices.append(price_list[i])
+
+    # jos kauppa ei myy kaikkia käyttäjän haluamia tuotteita
+    # vertailua ei suoriteta
+    summa = 0
+    for i in store_products:
+        summa += i
+    if summa == 0:
+        print("There is no store selling all those products.")
+
+    # Jos vertailtavia kauppoja on, etsitään
+    # niistä halvin
+    else:
+        cheapest_price = min(comparative_prices)
+
+        for i in range(0, len(price_list)):
+            if cheapest_price == price_list[i]:
+                cheapest_stores.append(stores[i])
+
+        if len(cheapest_stores) == 1:
+            print("The cheapest price for this shopping basket:", cheapest_stores[0], "for {:.2f} e".format(cheapest_price))
+
+        else:
+            separator = ', '
+            print("Multiple stores sell this basket for {:.2f} e:".format(cheapest_price), separator.join(cheapest_stores))
+
+
+def read_inputfile(filename=DEFAULT_FILENAME):
+    try:
+
+        document = open(filename, "r")
+        stores = []
+        prices = []
+
+        for row in document:
+            rowlist = row.rstrip().split(":")
+            store = rowlist[0]
+            product = rowlist[1]
+            price = float(rowlist[2]) # changing str to float
+
+            # adding new store to 'stores' list
+            if store in stores:
+                pass
+            else:
+                stores.append(store)
+                # creating new dict to list 'prices'
+                prices.append({})
+
+            # adding the price for the products to the index
+            return_index = stores.index(store)
+            prices[return_index][product] = price
+
+        # closing a document after using it
+        document.close()
+
+        # returning stores, that contains a list of the stores
+        # and prices, that contains a dict of the prices
+        return stores, prices
+
+    # Errors & prints for them
+    except ValueError:
+        print("There was an error in reading the input file!")
+        return 0
+
+    except IOError:
+        print("There was an error in reading the input file!")
+        return 0
+
+    except TypeError:
+        print("There was an error in reading the input file!")
+        return 0
+
+    except IndexError:
+        print("There was an error in reading the input file!")
+        return 0
+
+
+# HUOM TÄMÄ VAIN S?
+def print_price_info(product, price):
+    for product in sorted(price):
+        print("    {:<15s} {:>10.2f} e".format(product, price))
+
+
+# Read and return the contents of the shopping basket here.
+def read_shopping_basket():
+    print("Input product names separated by a white space:")
+    searched_products = input("")
+    product_list = searched_products.split(" ")
+
+    return product_list
+
+
+def calculate_basket_price(selection, basket):
+    """
+    This function is used to calculate the total price of the
+    content of the shopping basket for a particular store.
+
+    Parameters:
+        selection:
+            A data structure containing information about all the
+            products and their prices in one store. Could possibly be
+            implemented as a dict with product name as a key and
+            price as a payload.
+
+        basket:
+            A data structure containing all the items a customer
+            has collected in their shopping basket. Could possibly be
+            implemented as a list of strings.
+
+    Return value:
+        The price of the shopping basket (float) or None if
+        the store's selection of products doesn't include all the
+        items in the basket.
+    """
+
+    pass
+
+
+def main():
+    # TODO:
+    # Call a function which reads the input file products.txt here.
+    filename = "products.txt"
+    prices = read_inputfile(filename[0])
+    stores = read_inputfile(filename[1])
+
+    # That function should return a data structure containing all the
+    # information read from the input file.  Choose the data structure
+    # carefully so you will be able to implement all the required operations.
+
+    print("Welcome to the shopping basket optimization app!")
+    print("Available commands:")
+    print(" S Print all the [S]tores with their available products")
+    print(" P Print all the [P]roducts available in all the stores")
+    print(" C Show the [C]heapest seller for a specified shopping basket")
+    print(" Q [Q]uit")
+
+    while True:
+        print()
+
+        command = input("Input command (S, P, C, Q): ")
+
+        if command == "S":
+            print_selections(data)
+
+        elif command == "P":
+            print_known_products(data)
+
+        elif command == "C":
+            find_cheapest_stores(data)
+
+        elif command == "Q":
+            print("Bye!")
+            return
+
+        else:
+            print("Unknown command!?!")
+
+
+main()
