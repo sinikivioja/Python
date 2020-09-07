@@ -1,0 +1,169 @@
+class Account:
+    def __init__(self, account_number, balance, customer):
+        self.__account_number = account_number
+        self.__balance = balance
+        self.__customer = customer
+
+    def deposit(self, sum):
+        if sum < 0:
+            return False
+
+        self.__balance += sum
+        return True
+
+    def balance(self):
+        return self.__balance
+
+    # L
+    def list(self):
+        for number in sorted(self.__account_number):
+            print(number, ":", self.__balance, "e")
+
+    # W
+    def withdrawal(self, acc_number, summa):
+        self.__account_number = acc_number
+        self.__balance -= summa
+
+        if self.__balance < 0:
+            self.__balance += summa
+            withdrawed = self.__balance
+            if self.__balance == 0.00:
+                print("Withdrawal not successful")
+            else:
+                print("{:.2f} e withdrawal completed".format(float(withdrawed)))
+
+        else:
+            print("{:.2f} e withdrawal completed".format(float(summa)))
+
+    # T
+    def transfer(self, source_account, target_account, summa):
+        self.__account_number = source_account
+        kate = summa - self.__balance
+
+        if kate < 0:
+            print("Account transfer not successful")
+
+        if kate >= 0:
+            target_account[self.__balance] += summa
+            print("Account transfer completed")
+
+    def new_account(self):
+        pass
+
+
+def read_input_file(filename):
+    accounts = {}
+
+    try:
+        file_object = open(filename, "r")
+        for line in file_object:
+            line = line.strip()
+            strings = line.split(";")
+            account_number = int(strings[0])
+            sum = float(strings[1])
+            customer = strings[2]
+            new_account = Account(account_number, sum, customer)
+            accounts[account_number] = new_account
+
+    except OSError:
+        print("Error! Error in reading the input file.")
+        return None
+    return accounts
+
+
+def read_account_number(prompt, database):
+    while True:
+        try:
+            account_nr = int(input(prompt))
+            while account_nr not in database:
+                print("Erroneous account")
+                account_nr = int(input(prompt))
+            return account_nr
+        except ValueError:
+            print("Erroneous account, the accounts are:")
+            Account.list()
+
+
+def read_float(prompt):
+    while True:
+        try:
+            sum = float(input(prompt))
+            return sum
+        except ValueError:
+            print("Enter a decimal value")
+
+
+def main():
+    accounts = read_input_file("accounts.txt")
+
+    if accounts == None:
+        return
+
+    print("Welcome to the Bank of Perähikiä!")
+
+    while True:
+        command = input("Command: ")
+        command = command.upper()
+
+        if command == "B":
+            account_nr = read_account_number("Account number: ", accounts)
+            print("Balance of account", account_nr, "is {:.2f} e"
+                  .format(accounts[account_nr].balance()))
+
+        elif command == "D":
+            account_nr = read_account_number("Account number: ", accounts)
+            sum = read_float("Sum: ")
+
+            if accounts[account_nr].deposit(sum):
+                print("Deposit completed, new balance is {:.2f} e"
+                      .format(accounts[account_nr].balance()))
+            else:
+                print("Deposit not successful")
+
+        elif command == "L":
+            accounts.list()
+
+        elif command == "W":
+            account_nr = read_account_number("Account number: ", accounts)
+            summa = read_float("Sum: ")
+
+            if summa > 0:
+                accounts[account_nr].withdrawal(account_nr, summa)
+            else:
+                print("Withdrawal not successful")
+
+        elif command == "T":
+            source_account = read_account_number("Source account number: ", accounts)
+            target_account = read_account_number("Target account number: ", accounts)
+            summa = float(input("Sum: "))
+
+            if summa <= 0:
+                print("Account transfer not successful")
+
+            else:
+                accounts[source_account].transfer(source_account, target_account, summa)
+
+        elif command == "+":
+            customer_name = input("Customer name: ")
+            Account.new_account(customer_name)
+
+        elif command == "-":
+            pass
+
+        elif command == "" or command == "Q":
+            print("Thank you and goodbye!")
+            return
+
+        else:
+            print("Erroneous command!")
+            print("The commands are:")
+            print("Balance")
+            print("List of accounts")
+            print("Deposit")
+            print("Withdrawal")
+            print("account Transfer")
+            print("+ (new account)")
+            print("- (terminate account)")
+
+
+main()
