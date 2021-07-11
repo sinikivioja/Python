@@ -1,0 +1,67 @@
+# Sanakirja, ohjelmakoodipohja
+# Kääntää sanoja/lauseita englannista espanjaksi
+
+
+def main():
+    english_spanish = {"hey": "hola", "thanks": "gracias", "home": "casa"}
+    spanish_english = {}
+
+    while True:
+        command = input("[W]ord/[A]dd/[R]emove/[P]rint/[T]ranslate/[Q]uit: ")
+
+        # Kääntää yhden sanan
+        if command == "W":
+
+            word = input("Enter the word to be translated: ")
+            if word in english_spanish:
+                print(word, "in Spanish is", english_spanish[word])
+
+            else:
+                print("The word", word, "could not be found from the dictionary.")
+
+        # Lisää sanan sanakirjaan
+        elif command == "A":
+            english_word = input("Give the word to be added in English: ")
+            spanish_word = input("Give the word to be added in Spanish: ")
+            english_spanish[english_word] = spanish_word
+
+            for word_s in english_spanish:
+                spanish_english[english_spanish[word_s]] = word_s
+
+        # Poistaa sanan sanakirjasta
+        elif command == "R":
+            remove = input("Give the word to be removed: ")
+            if remove in english_spanish:
+                del english_spanish[remove]
+            else:
+                print("The word", remove, "could not be found from the dictionary.")
+
+        # Lopettaa ohjelman
+        elif command == "Q":
+            print("Adios!")
+            return
+
+        # Tulostaa kaikki sanakirjan sanat
+        elif command == "P":
+            for words in sorted(english_spanish):
+                print(words, english_spanish[words])
+
+        # Kääntää kokonaisia lauseita
+        # Jos sana ei ole sanakirjassa, palauttaa englanninkielisen sanan
+        elif command == "T":
+            sentence = input("Enter the text to be translated into Spanish: ")
+            words_sentence = sentence.split(" ")
+            print("The text, translated by the dictionary:")
+            for word_e in words_sentence:
+                if word_e in english_spanish:
+                    print(english_spanish[word_e], end=" ")
+                else:
+                    print(word_e, end=" ")
+            print("")
+
+        # Väärä syöte käyttäjältä
+        else:
+            print("Unknown command, enter W, A, R, P, T or Q!")
+
+
+main()
